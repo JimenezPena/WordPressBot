@@ -28,10 +28,7 @@ URL_FEED_RSS 		= os.getenv("URL_FEED_RSS")
 WP_USER			= os.getenv("WP_USER")
 WP_APP_URL	 	= os.getenv("WP_APP_URL")
 WP_APP_PASSWORD	= os.getenv("WP_APP_PASSWORD")
-
-# Lee el token generado por obtener_token_wordpress.py
-with open("wp_token_alt.txt", "r") as f:
-    WP_ACCESS_TOKEN = f.read().strip()
+WP_ACCESS_TOKEN 	= os.getenv("WP_ACCESS_TOKEN")
 
 # Archivo local para no repetir comentarios en relatos viejos
 DB_POSTS_PROCESADOS = "posts_procesados.json"
