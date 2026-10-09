@@ -180,7 +180,7 @@ def publicar_comentario_wp_por_url(post_url, texto_comentario):
                 
 # --- FLUJO PRINCIPAL ---
 def ejecutar_bot():
-    print("Revisando el blog...")
+    print("Revisando el blog\n")
     print(URL_FEED_RSS)
     
     feed = feedparser.parse(URL_FEED_RSS)
