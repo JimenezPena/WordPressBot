@@ -1,0 +1,4 @@
+.venv/
+.env
+wp_token_alt.txt
+__pycache__/
