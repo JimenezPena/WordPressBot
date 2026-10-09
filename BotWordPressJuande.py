@@ -24,10 +24,10 @@ client = genai.Client()
 
 AUTORES_EXCLUIDOS = os.getenv("AUTORES_EXCLUIDOS")
 
-URL_FEED_RSS 		= os.getenv("URL_FEED_RSS")
+URL_FEED_RSS 		= os.getenv("URL_FEED_RSS")			#Ex: "https://yourwebsite.wordpress.com/feed/"
 WP_USER			= os.getenv("WP_USER")
-WP_APP_URL	 	= os.getenv("WP_APP_URL")
-WP_APP_PASSWORD	= os.getenv("WP_APP_PASSWORD")
+WP_APP_URL	 	= os.getenv("WP_APP_URL")			
+WP_APP_PASSWORD	= os.getenv("WP_APP_PASSWORD")		#Ex: "abcd efgh ijkl mnop" --> this is the expected format
 WP_ACCESS_TOKEN 	= os.getenv("WP_ACCESS_TOKEN")
 
 # Archivo local para no repetir comentarios en relatos viejos
