@@ -184,6 +184,8 @@ def ejecutar_bot():
     feed = feedparser.parse(URL_FEED_RSS)
     procesados = cargar_procesados()
     
+    print(URL_FEED_RSS)
+    
     for entrada in feed.entries:
         post_url = entrada.link  # ¡Usamos la URL directa como ID!
 
