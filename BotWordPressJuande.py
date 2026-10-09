@@ -21,6 +21,9 @@ load_dotenv()
 client = genai.Client()
 
 # --- CONFIGURACIÓN ---
+
+AUTORES_EXCLUIDOS = os.getenv("AUTORES_EXCLUIDOS")
+
 URL_FEED_RSS 		= os.getenv("URL_FEED_RSS")
 WP_USER			= os.getenv("WP_USER")
 WP_APP_URL	 	= os.getenv("WP_APP_URL")
@@ -187,6 +190,10 @@ def ejecutar_bot():
     for entrada in feed.entries:
         post_url = entrada.link  # ¡Usamos la URL directa como ID!
 
+        autor = entrada.get("author", "")
+        if autor in AUTORES_EXCLUIDOS:
+            continue #evitamos comentar el relato si es de un autor excluido
+        
         if post_url in procesados:
             continue # Ya comentamos en este relato, saltamos al siguiente
 
@@ -202,7 +209,7 @@ def ejecutar_bot():
         comentario = generar_comentario_llm(entrada.title, contenido)
         #comentario = generar_comentario_falso(entrada.title, contenido)
         
-        print("\n",entrada.title,"\n", contenido, "\n###########\n", comentario)
+        print("\n\n", contenido, "\n\n       ###########      \n\n", comentario)
         #print("\n", comentario)
         
         # 2. Publicarlo en la web usando la URL
