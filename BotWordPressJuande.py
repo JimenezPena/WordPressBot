@@ -181,10 +181,24 @@ def publicar_comentario_wp_por_url(post_url, texto_comentario):
 # --- FLUJO PRINCIPAL ---
 def ejecutar_bot():
     print("Revisando el blog\n")
-    print(URL_FEED_RSS)
+    url_rss = os.environ.get("URL_FEED_RSS")
+    print(f"URL a procesar: {url_rss}")
     
-    feed = feedparser.parse(URL_FEED_RSS)
-    procesados = cargar_procesados()    
+    try:
+        # Añadimos cabeceras para fingir que somos un navegador y un timeout de 15 segundos
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        respuesta = requests.get(url_rss, headers=headers, timeout=15)
+        respuesta.raise_for_status()
+        
+        # Parseamos el contenido descargado
+        feed = feedparser.parse(respuesta.content)
+        print(f"Feed descargado con éxito. Entradas encontradas: {len(feed.entries)}")
+        
+    except Exception as e:
+        print(f"Error al descargar el RSS: {e}")
+        return
+
+    procesados = cargar_procesados()
     
     for entrada in feed.entries:
         post_url = entrada.link  # ¡Usamos la URL directa como ID!
