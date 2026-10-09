@@ -181,10 +181,10 @@ def publicar_comentario_wp_por_url(post_url, texto_comentario):
 # --- FLUJO PRINCIPAL ---
 def ejecutar_bot():
     print("Revisando el blog...")
-    feed = feedparser.parse(URL_FEED_RSS)
-    procesados = cargar_procesados()
-    
     print(URL_FEED_RSS)
+    
+    feed = feedparser.parse(URL_FEED_RSS)
+    procesados = cargar_procesados()    
     
     for entrada in feed.entries:
         post_url = entrada.link  # ¡Usamos la URL directa como ID!
