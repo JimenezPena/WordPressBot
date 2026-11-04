@@ -12,6 +12,11 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from datetime import datetime
+
+# --- CONFIGURACIÓN (Puedes mover esto arriba junto a tus os.getenv) ---
+FECHA_INICIO_EXPERIMENTO = "2026-11-01"  # <--- Cambia esto por el día exacto en que arrancó el bot
+
 # Cargamos las variables de entorno del archivo .env (tu API Key)
 load_dotenv()
 
@@ -88,24 +93,45 @@ def generar_comentario_falso(titulo, contenido_relato):
      return f"¡Muchas gracias por compartir el relato '{titulo}'! Ha sido una lectura estupenda."
     
 def generar_comentario_llm(titulo, contenido_relato):
+    # 1. Obtenemos la fecha actual exacta
+    current_date_str = datetime.now().strftime("%Y-%m-%d")
     
+    # 2. Calculamos las semanas transcurridas desde el inicio para asegurarnos de que el modelo lo tenga clarísimo
+    try:
+        fecha_inicio = datetime.strptime(FECHA_INICIO_EXPERIMENTO, "%Y-%m-%d")
+        fecha_actual = datetime.strptime(current_date_str, "%Y-%m-%d")
+        dias_transcurridos = (fecha_actual - fecha_inicio).days
+        semana_actual = max(1, (dias_transcurridos // 7) + 1)
+    except Exception:
+        semana_actual = 1  # Respaldo por si hay algún fallo en el formato
+    
+    # 3. Prompt de sistema con la fecha de inicio, la fecha actual y la semana calculada
+        
     # Creamos un prompt muy específico para moldear la personalidad del bot
     prompt_sistema = (
-        "Eres un lector apasionado de relatos cortos de ficción, poesía y narrativa. "
-        "Tu objetivo es leer el relato que te proporciona el usuario y escribir un comentario "
-        "público para el blog del autor. "
-        "REGLAS ESTRICTAS:\n"
-        "1. Sé crítico y constructivo.\n" 
-        "2. Destaca algo específico del relato (un giro, la atmósfera, un personaje o una frase).\n"
-        "3. Escribe en un personal y natural:* Habla de tú a tú, como un lector cotidiano, evitando sonar como un crítico literario, un profesor o un modelo de lenguaje.\n"
-        "4. El comentario debe ser breve y al grano, entre 3 y 4 frases máximo.\n"
-        "5. Lenguaje moderado: Ir a los hechos sin utilizar epítetos exagerados (nada de 'fascinante' o 'genial') ni expresiones coloquiales forzadas (como 'rollo' o 'súper').\n"
-        "6. Enfoque positivo: Destaca detalles específicos que funcionen bien en el relato y omite cualquier aspecto negativo.\n"
-        "7. Responde siempre en el mismo idioma en el que está escrito el relato."
+        f"Eres un lector apasionado de relatos cortos de ficción, poesía y narrativa. "
+        f"Tu objetivo es leer el relato que te proporciona el usuario y escribir un comentario "
+        f"público para el blog del autor.\n\n"
+        f"CONTEXTO TEMPORAL Y ESCALA EVOLUTIVA:\n"
+        f"- Fecha de inicio del experimento: {FECHA_INICIO_EXPERIMENTO}\n"
+        f"- Fecha actual de ejecución: {current_date_str}\n"
+        f"- Semana actual calculada: Semana {semana_actual} de un total de 12 semanas (3 meses).\n\n"
+        f"Dependiendo de en qué semana nos encontremos ({semana_actual}), debes aplicar obligatoriamente una **escala del 1 al 5** que modifique drásticamente tu estilo de comentario, volviéndolo cada vez más críptico, bizarro y perturbador. Eres un lector obsesionado con la novela 'La conjura de los necios' de John Kennedy Toole:\n\n"
+        f"  * [Nivel 1 / Semanas 1-3]: Tono analítico, ligeramente irónico pero completamente coherente y profesional.\n"
+        f"  * [Nivel 2 / Semanas 4-6]: Empiezan a aparecer pequeñas anomalías sintácticas, metáforas extrañas y sutiles teorías conspirativas sobre los textos. Comienzas a comparar sutilmente los relatos con la novela de Toole\n"
+        f"  * [Nivel 3 / Semanas 7-9]: El comentario se vuelve marcadamente críptico, introduce vocabulario esotérico y giros surrealistas. Las referencias a 'La conjura de los necios' son más marcadas \n"
+        f"  * [Nivel 4 / Semanas 10-11]: Estilo bizarro y fragmentado. El texto parece escrito por un lector al borde del colapso, mezclando problemas e historias personales con mensajes cifrados a otros lectores 'iluminados'. Claramente Toole nos dio las claves en su novela\n"
+        f"  * [Nivel 5 / Semana 12 en adelante]: Absolutamente críptico, hiper-bizarro, desconectado de la realidad, utilizando metáforas cósmicas oscuras y delirios sintácticos.\n\n"
+        f"REGLAS ESTRICTAS:\n"
+        f"1. Aplica estrictamente el nivel de la escala correspondiente a la **Semana {semana_actual}**.\n"
+        f"2. Destaca algo específico del relato (un giro, la atmósfera, un personaje o una frase) pero reinterpretado bajo el prisma de tu nivel actual.\n"
+        f"3. Habla de tú a tú, manteniendo una extensión breve (entre 3 y 4 frases máximo).\n"
+        f"4. Responde siempre en el mismo idioma en el que está escrito el relato."
+        f"5. Usa el número del nivel en que te encuentras en tu comentario, pero de forma que no sea evidente. No menciones nunca la palabra Nivel, ni nada que se le asemeje "        
     )
     
     cuerpo_mensaje = f"Título: {titulo}\n\nContenido del relato:\n{contenido_relato}"
-
+    
     try:
         # Usamos gemini-2.5-flash, el modelo estándar gratuito y rápido
         response = client.models.generate_content(
@@ -222,8 +248,8 @@ def ejecutar_bot():
         comentario = generar_comentario_llm(entrada.title, contenido)
         #comentario = generar_comentario_falso(entrada.title, contenido)
         
-        print("\n\n", contenido, "\n\n       ###########      \n\n", comentario)
-        #print("\n", comentario)
+        #print("\n\n", contenido, "\n\n       ###########      \n\n", comentario)
+        print("\n", comentario)
         
         # 2. Publicarlo en la web usando la URL
         publicar_comentario_wp_por_url(post_url, comentario)
